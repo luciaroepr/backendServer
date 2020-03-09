@@ -12,7 +12,7 @@ app.post('/', (req, res) => {
     var body = req.body;
 
     Usuario.findOne({ email: body.email }, (err, usuarioDB) => {
-        console.log('USUARIO login 3000: \x1b[32m%s\x1b[0m', 'online');
+
         if (err) {
             return res.status(500).json({
                 ok: false,
@@ -29,14 +29,13 @@ app.post('/', (req, res) => {
             });
         }
 
-        // if (!bcrypt.compareSync(body.password, usuarioDB.password)) {
-        //     console.log(body.password, usuarioBD.password);
-        //     return res.status(400).json({
-        //         ok: false,
-        //         mensaje: 'Credenciales incorrectas - password',
-        //         errors: err
-        //     });
-        // }
+        if (!bcrypt.compareSync(body.password, usuarioDB.password)) {
+            return res.status(400).json({
+                ok: false,
+                mensaje: 'Credenciales incorrectas - password',
+                errors: err
+            });
+        }
 
         // Crear un token!!!
         usuarioDB.password = ':)';

@@ -11,7 +11,13 @@ var Hospital = require('../models/hospital');
 // ==========================================
 app.get('/', (req, res, next) => {
 
-    Hospital.find({}, )
+    var desde = req.query.desde || 0;
+    desde = Number(desde);
+
+    Hospital.find({})
+        .skip(desde)
+        .limit(5)
+        .populate('usuario', 'nombre email')
         .exec(
             (err, hospitales) => {
 
@@ -23,19 +29,21 @@ app.get('/', (req, res, next) => {
                     });
                 }
 
-                res.status(200).json({
-                    ok: true,
-                    hospitales: hospitales
-                });
+                Hospital.count({}, (err, conteo) => {
 
-
+                    res.status(200).json({
+                        ok: true,
+                        hospitales: hospitales,
+                        total: conteo
+                    });
+                })
 
             });
 });
 
 
 // ==========================================
-// Actualizar hospital
+// Actualizar Hospital
 // ==========================================
 app.put('/:id', mdAutenticacion.verificaToken, (req, res) => {
 
@@ -75,7 +83,6 @@ app.put('/:id', mdAutenticacion.verificaToken, (req, res) => {
                 });
             }
 
-
             res.status(200).json({
                 ok: true,
                 hospital: hospitalGuardado
@@ -95,8 +102,7 @@ app.put('/:id', mdAutenticacion.verificaToken, (req, res) => {
 app.post('/', mdAutenticacion.verificaToken, (req, res) => {
 
     var body = req.body;
-    // console.log('req', req);
-    console.log('res', res.usuario);
+
     var hospital = new Hospital({
         nombre: body.nombre,
         usuario: req.usuario._id
